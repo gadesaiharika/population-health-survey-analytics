@@ -1,0 +1,20 @@
+# Source data and caches — reproducible from `Rscript run.R`
+data/raw/
+data/cache/
+data/exports/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# SAS
+*.log
+*.lst
+*.sas7bdat
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

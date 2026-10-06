@@ -151,7 +151,9 @@ calling out:
 ## The SAS half — written, not yet run
 
 `sas/01_estimate.sas` implements the same analysis with `PROC SURVEYFREQ`, and `R/reconcile.R`
-compares the two to a **0.01 percentage point** tolerance.
+compares the two to a **0.01 percentage point** tolerance. `sas/02_estimate_from_csv.sas` is the
+same program reading a 19.5 MB prepared extract instead of the 1 GB XPT, for running SAS somewhere
+the source file is not — a smaller claim, and `sas/README.md` explains exactly how much smaller.
 
 **It has not been executed.** It needs a SAS OnDemand for Academics account, and until it runs, this
 repository is an R project with a SAS program beside it — not a cross-validated one. That

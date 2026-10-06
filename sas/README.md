@@ -24,13 +24,25 @@ In SAS Studio: **Files → Upload** into `/home/<your-id>/brfss/`.
 The XPT is about 1 GB and the upload is slow. The default quota is 5 GB, which
 is enough.
 
-**If the upload is impractical**, there is a weaker but honest alternative. The
-value of this check is an independent *estimator*, not an independent *read* of
-the file: export the design and measure columns from R as a CSV and point SAS at
-that instead. The `PROC SURVEYFREQ` calls do not change. Say so in the main
-README if you do it that way — a shared input is a smaller claim than two
-programs reading the source file, and the difference should be stated rather
-than quietly swapped.
+**If the upload is impractical — and in SAS OnDemand it usually is —** use
+`02_estimate_from_csv.sas` instead. Generate its input first:
+
+```powershell
+Rscript R/export_for_sas.R
+```
+
+That writes `data/exports/brfss_for_sas.csv`: the six columns SAS needs,
+**19.5 MB instead of 1 GB**, which uploads in seconds. The `PROC SURVEYFREQ`
+calls are identical.
+
+Be straight about the trade. The strongest version of this check has two
+programs reading the source file independently, so a transcription error in
+either one shows up as disagreement. The CSV route shares R's read and recode,
+so it still proves the two *estimators* agree — design effect, variance,
+confidence bounds — but no longer proves both read the file the same way. The
+program says so at the top, and the main README says so too. Run
+`01_estimate.sas` against the XPT once a local licence is available and the
+full claim is back.
 
 ## 4. Run
 

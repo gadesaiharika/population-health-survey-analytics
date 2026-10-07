@@ -23,6 +23,19 @@
      5. Rscript R/reconcile.R
    -------------------------------------------------------------------------- */
 
+/* An apostrophe anywhere in these paths will break the program in a way the
+   errors do not explain. %let values are scanned by the macro processor,
+   which reads ' as the start of a quoted string: everything after it is
+   swallowed, the LIBNAME never runs, and SAS then reports "Invalid option
+   name" against statements fifty lines further down.
+
+   This is not hypothetical. It happened here, because the repository lived
+   under a folder called "Master Resume and prompt's". Two ways out:
+
+     mask it:   %let BRFSS_PATH = %str(C:\Users\me\prompt%'s\LLCP2024.XPT);
+     avoid it:  run SAS with its working directory set to the file's folder
+                and pass a bare filename. */
+
 %let BRFSS_PATH = /home/YOUR_ID/brfss/LLCP2024.XPT;
 %let OUT_PATH   = /home/YOUR_ID/brfss/sas_estimates.csv;
 

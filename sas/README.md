@@ -49,6 +49,28 @@ full claim is back.
 Edit the two paths at the top of `01_estimate.sas`, then run it. It writes
 `sas_estimates.csv`.
 
+## A trap worth knowing: apostrophes in paths
+
+`%let` values are read by the macro processor, and an apostrophe starts a
+quoted string. One in a folder name — `Master Resume and prompt's` is a real
+example — swallows the rest of the program. The `LIBNAME` never executes, and
+the errors SAS prints point at `PROC SURVEYFREQ` statements fifty lines below
+the actual problem:
+
+```
+ERROR 22-7: Invalid option name COST_BARRIER.
+ERROR: Libref BRFSS is not assigned.
+```
+
+Either mask it with `%str(...%'...)`, or run SAS with its working directory
+set to the folder holding the file and pass a bare filename. The second is
+what this project does locally:
+
+```powershell
+cd data\raw
+& "C:\Program Files\SASHome\SASFoundation\9.4\sas.exe" -sysin 01_estimate.sas
+```
+
 ## 5. Reconcile
 
 Download that CSV into `data/exports/`, then:

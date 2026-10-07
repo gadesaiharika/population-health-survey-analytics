@@ -148,16 +148,34 @@ calling out:
 
 ---
 
-## The SAS half — written, not yet run
+## The SAS cross-check — run, and it agrees
 
-`sas/01_estimate.sas` implements the same analysis with `PROC SURVEYFREQ`, and `R/reconcile.R`
-compares the two to a **0.01 percentage point** tolerance. `sas/02_estimate_from_csv.sas` is the
-same program reading a 19.5 MB prepared extract instead of the 1 GB XPT, for running SAS somewhere
-the source file is not — a smaller claim, and `sas/README.md` explains exactly how much smaller.
+`sas/01_estimate.sas` implements the same analysis with `PROC SURVEYFREQ`. Both programs read
+the same 1 GB transport file and declare the survey design independently; `R/reconcile.R` compares
+every estimate they produce.
 
-**It has not been executed.** It needs a SAS OnDemand for Academics account, and until it runs, this
-repository is an R project with a SAS program beside it — not a cross-validated one. That
-distinction is the whole reason this section exists rather than a claim in the summary.
+```
+National prevalence, R against SAS
+
+  measure                   R          SAS   difference
+  cost_barrier        12.3338      12.3338     8.23e-11  agrees
+  diabetes            12.9807      12.9807    -3.34e-10  agrees
+
+  tolerance 0.01 pp - 2 of 2 national estimates agree
+
+  state estimates: 106 of 106 agree  (largest difference 4.93e-10 pp, Kentucky)
+```
+
+**108 of 108 estimates agree to machine precision.** The tolerance is 0.01 percentage points, set to
+absorb the different degrees-of-freedom conventions the two use for confidence bounds; nothing came
+close to needing it.
+
+A national figure could in principle agree by luck, with two errors cancelling. 106 state estimates
+agreeing could not, which is why the comparison covers them too.
+
+`sas/02_estimate_from_csv.sas` is the same program reading a 19.5 MB prepared extract rather than the
+XPT, for running SAS somewhere the source file is not. That is a weaker claim — two estimators
+rather than two independent reads — and `sas/README.md` says so.
 
 The asymmetry is what makes the check worth running: `PROC SURVEYFREQ` nests clusters inside strata
 by default, so SAS has no equivalent of `nest = TRUE` to forget, while SAS will happily treat 7 and

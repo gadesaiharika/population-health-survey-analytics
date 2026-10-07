@@ -46,7 +46,7 @@ merged$diff_pp <- merged$pct_weighted - merged$pct
 merged$agrees <- abs(merged$diff_pp) <= TOLERANCE_PP
 
 cat("\nNational prevalence, R against SAS\n\n")
-cat(sprintf("  %-14s %>12s %>12s %>12s  %s\n", "measure", "R", "SAS", "difference", ""))
+cat(sprintf("  %-14s %12s %12s %12s\n", "measure", "R", "SAS", "difference"))
 for (i in seq_len(nrow(merged))) {
   row <- merged[i, ]
   cat(sprintf("  %-14s %12.4f %12.4f %12.2e  %s\n",
@@ -55,8 +55,34 @@ for (i in seq_len(nrow(merged))) {
 }
 
 failed <- sum(!merged$agrees)
-cat(sprintf("\n  tolerance %.2f pp - %d of %d measures agree\n",
+cat(sprintf("\n  tolerance %.2f pp - %d of %d national estimates agree\n",
             TOLERANCE_PP, nrow(merged) - failed, nrow(merged)))
+
+# --- the 53 jurisdictions, both measures ------------------------------------
+# A national figure can agree by luck if two errors cancel. 106 state estimates
+# agreeing cannot.
+r_states <- utils::read.csv(file.path(EXPORTS, "state_estimates.csv"), stringsAsFactors = FALSE)
+sas_states <- sas_est[sas_est$scope == "state", ]
+
+st <- merge(r_states[, c("measure", "state_fips", "state_name", "pct_weighted")],
+            sas_states[, c("measure", "state_fips", "pct")],
+            by = c("measure", "state_fips"))
+st$diff_pp <- st$pct_weighted - st$pct
+st_failed <- sum(abs(st$diff_pp) > TOLERANCE_PP)
+
+cat(sprintf("\n  state estimates: %d of %d agree  (largest difference %.2e pp, %s)\n",
+            nrow(st) - st_failed, nrow(st), max(abs(st$diff_pp)),
+            st$state_name[which.max(abs(st$diff_pp))]))
+
+if (st_failed > 0) {
+  worst <- st[order(-abs(st$diff_pp)), ][seq_len(min(5, st_failed)), ]
+  for (i in seq_len(nrow(worst))) {
+    cat(sprintf("    DISAGREES %-14s %-22s R %8.4f  SAS %8.4f\n",
+                worst$measure[i], worst$state_name[i],
+                worst$pct_weighted[i], worst$pct[i]))
+  }
+}
+failed <- failed + st_failed
 
 if (failed > 0) {
   cat("\nThe designs are not the same in both programs. Check, in this order:\n",
